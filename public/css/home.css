@@ -1,0 +1,37 @@
+
+body{
+	font-family: 'PT Sans', sans-serif !important;
+}
+li a:hover{
+	color: rgb(0,68,29) !important;
+}
+li{
+	display: inline-block ;
+	margin-right: 50px;
+}
+li a{
+	font-size: 13pt;
+}
+thead{
+	background: rgb(0,68,29) !important;
+}
+.navBarPrincipal{
+	background: rgb(0,68,29);
+	background: linear-gradient(90deg, rgba(0,68,29,1) 0%, rgba(9,121,76,1) 6%, rgba(6,116,184,1) 32%, rgba(0,144,255,1) 100%);
+	box-shadow: 2px 2px 2px #B5B5B5;
+}
+td form{
+	display: inline-block;
+}
+.filtroTableDiv{
+	display: inline-block;	
+}
+.filtroTableDiv input{
+	display: inline-block;
+}
+.divFiltro div{
+	display: inline-block;	
+}
+.divButton{
+	left: 50.5%;
+}
