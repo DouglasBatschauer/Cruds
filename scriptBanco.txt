@@ -1,0 +1,24 @@
+create database crudsProjeto;
+
+use crudsProjeto;
+
+create table clientes(
+CPF char(11) primary key,
+NomeCliente varchar(100) not null,
+Email nchar(10));
+
+create table produtos(
+CodBarras varchar(20) primary key,
+NomeProduto varchar(100),
+ValorUnitario decimal(15,2) not null);
+
+create table pedido(
+NumeroPedido int primary key auto_increment,
+DtPedido datetime not null, 
+Quantidade int not null,
+CPF_cliente char(11) not null,
+CodBarras varchar(20) not null,
+constraint fk_cpf_cliente foreign key (CPF_cliente) 
+references clientes(CPF),
+constraint fk_cod_barras foreign key (CodBarras)
+references produtos(CodBarras));
