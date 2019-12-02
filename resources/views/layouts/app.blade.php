@@ -22,10 +22,10 @@
             </button>
             <div class="collapse navbar-collapse" id="conteudoNavbarSuportado">
                 <ul class="navbar-nav mr-auto navbar-right">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{{ url('/produtos') }}">Produtos</a>
-                    </li>
-                    @if (!Auth::guest())    
+                    @if (!Auth::guest()) 
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{{ url('/produtos') }}">Produtos</a>
+                        </li>   
                         <li class="nav-item active">    
                             <a class="nav-link" href="{{ url('/cliente') }}">Clientes</a>
                         </li>

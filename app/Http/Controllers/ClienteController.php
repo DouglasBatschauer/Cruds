@@ -7,13 +7,20 @@ use cruds\Cliente;
 use Session;
 
 class ClienteController extends Controller {
+    
+    private $cliente;
+
+    public function __construct(Cliente $cliente) {
+        $this->cliente = $cliente;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $cliente = Cliente::orderBy('CPF')->paginate(5);
+        $cliente = $this->cliente->orderBy('CPF')->paginate(5);
         return view('clientes.lista-clientes', ['cliente' => $cliente]);
     }
 
@@ -33,9 +40,13 @@ class ClienteController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $cliente = $request->all();
-        Cliente::create($cliente);
-        return redirect('/cliente');
+        if($this->cliente->ieCamposCorretos($request->all())){
+            $cliente = $request->all();
+            $this->cliente->create($cliente);
+            return redirect('/cliente');    
+        }
+        $error = $this->cliente->getError();
+        return view('clientes.create-edit-cliente', ['error' => $error]);
     }
 
     /**
@@ -56,7 +67,7 @@ class ClienteController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit($id) {
-        $cliente = Cliente::find($id);
+        $cliente = $this->cliente->find($id);
         return view('clientes.create-edit-cliente', ['cliente' => $cliente]);
     }
 
@@ -68,7 +79,7 @@ class ClienteController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-        $cliente = Cliente::find($id);
+        $cliente = $this->cliente->find($id);
         $clienteUpdate = $request->all();
         $cliente->update($clienteUpdate);
         return redirect('/cliente');
@@ -81,7 +92,7 @@ class ClienteController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $cliente = Cliente::find($id);
+        $cliente = $this->cliente->find($id);
         $cliente->destroy($id);
         return redirect('/cliente');
     }

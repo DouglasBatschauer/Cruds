@@ -1,6 +1,13 @@
 @extends('layouts.app')
 @section('content')
   
+
+  @if( isset($error))
+    <div class="alert alert-danger">
+        <p>{{ $error }}</p>
+    </div>   
+  @endif
+  
   @if( isset($cliente))
     <form class="formCliente" method="POST" action="{{ route('cliente.update', $cliente->CPF)}}">
       {!! method_field('PUT') !!}

@@ -9,15 +9,25 @@ use cruds\Cliente;
 use cruds\Produtos;
 
 
-class PedidosComprasController extends Controller
-{
+class PedidosComprasController extends Controller{
+    
+    private $pedidoCompras;
+    private $cliente;
+    private $produtos;
+
+    public function __construct(PedidoCompras $pedidoCompras, Cliente $cliente, Produtos $produtos){
+        $this->pedidoCompras = $pedidoCompras;
+        $this->cliente = $cliente;
+        $this->produtos = $produtos;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(){
-        $pedidosCompras = PedidoCompras::orderBy('NumeroPedido')->paginate(5);
+        $pedidosCompras = $this->pedidoCompras->orderBy('NumeroPedido')->paginate(5);
         return view('pedidosCompras.pedidos-compras', ['pedidosCompras' => $pedidosCompras]);
     }
 
@@ -31,13 +41,13 @@ class PedidosComprasController extends Controller
     }
 
     public function verProduto($id){
-        $produtos = Produtos::find($id);
+        $produtos = $this->produtos->find($id);
         $readOnlyPanel = true;
         return view('produtos.create-edit', ['produtos' => $produtos, 'readOnlyPanel' => $readOnlyPanel]);
     }
 
     public function verCliente($id){
-        $cliente = Cliente::find($id);
+        $cliente = $this->cliente->find($id);
         $readOnlyPanel = true;
         return view('clientes.create-edit-cliente', ['cliente' => $cliente, 'readOnlyPanel' => $readOnlyPanel]);
     }
@@ -48,15 +58,19 @@ class PedidosComprasController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request){
-        $dataPedido = date('Y-m-d H:i:s');
-        $data = [
-            'DtPedido' => $dataPedido,
-            'Quantidade' => $request->Quantidade,
-            'CPF_cliente' => $request->CPF_cliente,
-            'CodBarras' => $request->CodBarras,
-        ];
-        PedidoCompras::create($data);
-        return redirect('/pedido-compras');
+        if($this->pedidoCompras->ieCamposCorretos($request, $this->cliente, $this->produtos)){
+            $dataPedido = date('Y-m-d H:i:s');
+            $data = [
+                'DtPedido' => $dataPedido,
+                'Quantidade' => $request->Quantidade,
+                'CPF_cliente' => $request->CPF_cliente,
+                'CodBarras' => $request->CodBarras,
+            ];
+            $this->pedidoCompras->create($data);
+            return redirect('/pedido-compras');
+        }
+        $error = $this->pedidoCompras->getError();
+        return view('pedidosCompras.create-edit-pedido', ['error' => $error]);     
     }
 
     /**
@@ -76,7 +90,7 @@ class PedidosComprasController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id){
-        $pedidosCompras = PedidoCompras::find($id);
+        $pedidosCompras = $this->pedidoCompras->find($id);
         return view('pedidosCompras.create-edit-pedido', ['pedidosCompras' => $pedidosCompras]);
     }
 
@@ -88,11 +102,14 @@ class PedidosComprasController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id){
-        $data = $request->all();
-        $produtos = PedidoCompras::find($id);
-        $produtos->update($data);
-        Session::flash('message', $data['CodBarras'] . ' Alterado com Sucesso!');
-        return redirect('/pedido-compras');
+        if($this->pedidoCompras->ieCamposCorretos($request, $this->cliente, $this->produtos)){
+            $data = $request->all();
+            $produtos = $this->pedidoCompras->find($id);
+            $produtos->update($data);
+            return redirect('/pedido-compras');
+        }   
+        $error = $this->pedidoCompras->getError();
+        return view('pedidosCompras.create-edit-pedido', ['error' => $error]);  
     }
 
     /**
@@ -102,9 +119,8 @@ class PedidosComprasController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id){
-        $pedido = PedidoCompras::find($id);
+        $pedido = $this->pedidoCompras->find($id);
         $pedido->destroy($id);
-        Session::flash('message', $pedido['CodBarras'] . ' Deletado com Sucesso!');
         return redirect('/pedido-compras');
     }
 }

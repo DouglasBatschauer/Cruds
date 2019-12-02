@@ -1,6 +1,13 @@
 @extends('layouts.app')
 @section('content')
 
+
+@if( isset($error))
+    <div class="alert alert-danger">
+        <p>{{ $error }}</p>
+    </div>   
+@endif
+
 @if( isset($produtos) )
 <form  class="form" method="post" action="{{route('produtos.update', $produtos->CodBarras)}}" >
     {!! method_field('PUT') !!}

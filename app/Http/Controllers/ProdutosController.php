@@ -8,9 +8,11 @@ use Session;
 
 class ProdutosController extends Controller {
 
+    private $produto;
 
-    public function __construct() {
+    public function __construct(Produtos $produto) {
         $this->middleware('auth');
+        $this->produto = $produto;
     }
     /**
      * Display a listing of the resource.
@@ -18,9 +20,8 @@ class ProdutosController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $produtos = Produtos::orderBy('NomeProduto')->paginate(5);
-        $produt = ProdutosController::class;
-        return view('produtos.index', ['produtos' => $produtos], ['produt' => $produt]);
+        $produtos = $this->produto->orderBy('NomeProduto')->paginate(5);
+        return view('produtos.index', ['produtos' => $produtos]);
     }
 
     /**
@@ -38,16 +39,19 @@ class ProdutosController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $precoProdutoAlterado = str_replace(['.',','], ['','.'], str_replace('R$', '', str_replace(' ', '', $request->ValorUnitario)));
-        $data = [
-            'CodBarras' => $request->CodBarras,
-            'NomeProduto' => $request->NomeProduto,
-            'ValorUnitario' => $precoProdutoAlterado,
-        ];
-        Produtos::create($data);
-        return redirect('/produtos');
+    public function store(Request $request){
+        if($this->produto->verificaCampos($request->all())){
+            $precoProdutoAlterado = str_replace(['.',','], ['','.'], str_replace('R$', '', str_replace(' ', '', $request->ValorUnitario)));
+            $data = [
+                'CodBarras' => $request->CodBarras,
+                'NomeProduto' => $request->NomeProduto,
+                'ValorUnitario' => $precoProdutoAlterado,
+            ];
+            Produtos::create($data);
+            return redirect('/produtos');   
+        }
+        $error = $this->produto->getError();
+        return view('produtos.create-edit', ['error' => $error]);
     }
 
     /**
@@ -67,7 +71,7 @@ class ProdutosController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function edit($id) {
-        $produtos = Produtos::find($id);
+        $produtos = $this->produto->find($id);
         return view('produtos.create-edit', ['produtos' => $produtos]);
     }
 
@@ -85,7 +89,7 @@ class ProdutosController extends Controller {
             'NomeProduto' => $request->NomeProduto,
             'ValorUnitario' => $precoProdutoAlterado
         ];
-        $produtos = Produtos::find($id);
+        $produtos = $this->produto->find($id);
         $produtos->update($data);
         return redirect('/produtos');
     }
@@ -97,7 +101,7 @@ class ProdutosController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        $produtos = Produtos::find($id);
+        $produtos = $this->produto->find($id);
         $produtos->destroy($id);
         return redirect('/produtos');
     }
